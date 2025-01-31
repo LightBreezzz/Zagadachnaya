@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Крипто-сайт</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Крипто-кошелек</h1>
+        <p>Управление вашими цифровыми активами.</p>
+
+        <button>Подключить MetaMask</button>
+
+        <form>
+            <input type="text" placeholder="Адрес кошелька">
+            <input type="number" placeholder="Сумма">
+            <button type="submit">Отправить транзакцию</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Криптовалюта</th>
+                    <th>Баланс</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bitcoin</td>
+                    <td>0.5 BTC</td>
+                </tr>
+                <tr>
+                    <td>Ethereum</td>
+                    <td>2.3 ETH</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="card">
+            <div class="card-header">Информация о транзакции</div>
+            <div class="card-content">
+                <p>Хэш транзакции: 0xabc123...</p>
+                <p>Статус: Успешно</p>
+            </div>
+        </div>
+    </div>
+    <script src="index.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+/* Основные настройки */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212; /* Темный фон */
+    color: #ffffff; /* Белый текст */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #121212, #1e1e1e);
+}
+
+/* Заголовки */
+h1, h2, h3, h4, h5, h6 {
+    color: #f7931a; /* Цвет биткойна */
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Главный контейнер */
+.container {
+    width: 80%;
+    max-width: 1200px;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Кнопки */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #f7931a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #e08317;
+    transform: scale(1.05);
+}
+
+/* Формы */
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    box-sizing: border-box;
+}
+
+input:focus, textarea:focus {
+    border-color: #f7931a;
+    outline: none;
+}
+
+/* Таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+th {
+    background-color: #2c2c2c;
+    color: #ffffff;
+}
+
+tr:hover {
+    background-color: #333;
+}
+
+/* Карточки */
+.card {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+.card-header {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #f7931a;
+}
+
+.card-content {
+    font-size: 16px;
+    color: #ffffff;
+}
+
+/* Медиа-запросы для адаптивности */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    button {
+        width: 100%;
+    }
+}
