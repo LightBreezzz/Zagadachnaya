@@ -1,85 +1,245 @@
-import { ethers } from 'ethers';
-// Проверяем, есть ли MetaMask в браузере
-if (typeof window.ethereum !== 'undefined') {
-    console.log('MetaMask установлен!');
-} else {
-    console.log('Установите MetaMask!');
+// Функция для проверки наличия ethereum
+function checkEthereum() {
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask установлен!');
+        return true;
+    } else {
+        console.error('Установите MetaMask!');
+        alert('MetaMask не найден. Установите и активируйте MetaMask.');
+        return false;
+    }
 }
 
-// Элементы DOM
 const connectButton = document.getElementById('connectButton');
-const accountInfo = document.getElementById('accountInfo');
-const networkInfo = document.getElementById('networkInfo');
+const disconnectButton = document.getElementById('disconnectButton');
+const checkBalanceButton = document.getElementById('checkBalanceButton');
 const sendTransactionButton = document.getElementById('sendTransactionButton');
-const transactionStatus = document.getElementById('transactionStatus');
+const walletAddressInput = document.getElementById('walletAddressInput');
+const ethereumBalanceCell = document.getElementById('ethereumBalance');
 
-// Функция для подключения к MetaMask
-async function connectMetaMask() {
+// Получение текущего аккаунта
+async function getCurrentAccount() {
+    if (!checkEthereum()) {
+        return null;
+    }
+    
     try {
-        // Запрашиваем доступ к аккаунту
-        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-        const account = accounts[0];
-        accountInfo.textContent = `Подключенный аккаунт: ${account}`;
-        sendTransactionButton.disabled = false; // Разблокируем кнопку отправки транзакции
+        const accounts = await ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            return accounts[0]; // Текущий выбранный аккаунт
+        } else {
+            console.warn('Аккаунт не выбран.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Ошибка при получении аккаунта:', error);
+        return null;
+    }
+}
 
-        // Обновляем информацию о сети
-        getNetwork();
+// Подключение к MetaMask
+async function connectMetaMask() {
+    if (!checkEthereum()) {
+        return;
+    }
+    
+    try {
+        console.log('Запрос на подключение к MetaMask...');
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
+        if (accounts.length === 0) {
+            console.error('Аккаунт не выбран.');
+            alert('Пожалуйста, выберите аккаунт в MetaMask.');
+            return;
+        }
+        
+        const account = accounts[0];
+        if (!account) {
+            console.error('Не удалось получить аккаунт.');
+            alert('Не удалось получить аккаунт из MetaMask.');
+            return;
+        }
+        
+        console.log('Подключен аккаунт:', account);
+        
+        // Отображаем адрес аккаунта
+        walletAddressInput.value = account;
+        
+        // Разблокируем кнопки
+        connectButton.disabled = true;
+        disconnectButton.disabled = false;
+        checkBalanceButton.disabled = false;
+        sendTransactionButton.disabled = false;
     } catch (error) {
         console.error('Ошибка при подключении:', error);
-        accountInfo.textContent = 'Ошибка подключения';
+        alert('Ошибка подключения к MetaMask: ' + error.message);
     }
+}
+
+// Инициализация при загрузке страницы
+async function init() {
+    if (!checkEthereum()) {
+        return;
+    }
+
+    try {
+        const currentAccount = await getCurrentAccount();
+        if (currentAccount) {
+            console.log('Текущий аккаунт:', currentAccount);
+            walletAddressInput.value = currentAccount;
+            
+            // Разблокируем кнопки
+            connectButton.disabled = true;
+            disconnectButton.disabled = false;
+            checkBalanceButton.disabled = false;
+            sendTransactionButton.disabled = false;
+        } else {
+            console.log('Аккаунт не выбран.');
+        }
+    } catch (error) {
+        console.error('Ошибка при инициализации:', error);
+    }
+}
+
+// Подписка на события MetaMask
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+            console.log('Аккаунт отключен.');
+            disconnectWallet(); // Отключаем кошелек
+        } else {
+            const account = accounts[0];
+            console.log('Аккаунт изменен:', account);
+            walletAddressInput.value = account; // Обновляем интерфейс
+        }
+    });
+}
+
+// Вызываем init при загрузке страницы
+document.addEventListener('DOMContentLoaded', init);
+
+// Отключение кошелька
+function disconnectWallet() {
+    walletAddressInput.value = ''; // Очищаем адрес аккаунта
+    connectButton.disabled = false;
+    disconnectButton.disabled = true;
+    checkBalanceButton.disabled = true;
+    sendTransactionButton.disabled = true;
+    
+    console.log('Кошелек отключен.');
 }
 
 // Функция для получения информации о сети
 async function getNetwork() {
+    if (!checkEthereum()) {
+        return;
+    }
+    
     try {
-        const chainId = await ethereum.request({ method: 'eth_chainId' });
-        networkInfo.textContent = `Текущая сеть: ${chainId}`;
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        console.log(`Текущая сеть: ${chainId}`);
     } catch (error) {
         console.error('Ошибка при получении сети:', error);
-        networkInfo.textContent = 'Ошибка получения сети';
     }
 }
 
-// Функция для отправки тестовой транзакции
-async function sendTestTransaction() {
+// Проверка баланса
+async function checkBalance() {
+    if (!checkEthereum()) {
+        return;
+    }
+    
+    // Проверяем, определен ли ethers
+    if (typeof ethers === 'undefined') {
+        console.error('Библиотека ethers.js не загружена.');
+        alert('Библиотека ethers.js не загружена. Убедитесь, что она правильно подключена.');
+    } else {
+        console.log('Ethers версия:', ethers.version);
+    }
+    
     try {
-        const toAddress = '0xRecipientAddress'; // Адрес получателя (замените на реальный адрес)
-        const amountInEther = '0.01'; // Сумма в ETH
+        console.log('Получение баланса...');
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress(); // Получаем адрес текущего аккаунта
+        const balance = await provider.getBalance(address);
+        const balanceInEth = ethers.utils.formatEther(balance);
 
-        const transactionParameters = {
-            to: toAddress, // Адрес получателя
-            from: ethereum.selectedAddress, // Адрес отправителя
-            value: ethers.utils.parseEther(amountInEther).toHexString(), // Сумма в Wei
+        console.log(`Баланс: ${balanceInEth} ETH`);
+        ethereumBalanceCell.textContent = `${balanceInEth} ETH`;
+    } catch (error) {
+        console.error('Ошибка при проверке баланса:', error);
+        alert('Не удалось получить баланс: ' + error.message);
+    }
+}
+
+// Функция для отправки транзакции
+async function sendTransaction() {
+    if (!checkEthereum()) {
+        return;
+    }
+
+    const toAddress = walletAddressInput.value.trim(); // Адрес получателя
+    const amountInEther = amountInput.value.trim(); // Сумма в ETH
+
+    if (!toAddress || !amountInEther) {
+        alert('Пожалуйста, заполните все поля.');
+        return;
+    }
+
+    try {
+        console.log('Отправка транзакции...');
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const balance = await signer.getBalance();  
+    document.getElementById('balanceInfo').innerText = 'Баланс: ${ethers.utils.formatEther(balance)} ETH';  
+
+//     const ethers = require('ethers');  
+// document.getElementById('checkBalance').addEventListener('click', async () => {  
+//     const provider = new ethers.providers.Web3Provider(window.ethereum);  
+//     const signer = provider.getSigner();  
+//     const balance = await signer.getBalance();  
+//     document.getElementById('balanceInfo').innerText = Баланс: ${ethers.utils.formatEther(balance)} ETH;  
+// });   
+
+
+        const tx = {
+            to: toAddress,
+            value: ethers.utils.parseEther(amountInEther),
         };
 
-        // Отправляем транзакцию
-        const txHash = await ethereum.request({
-            method: 'eth_sendTransaction',
-            params: [transactionParameters],
-        });
+        const txResponse = await signer.sendTransaction(tx);
+        console.log('Транзакция отправлена:', txResponse);
 
-        transactionStatus.textContent = `Транзакция отправлена: ${txHash}`;
+        transactionHashParagraph.textContent = `Хэш транзакции: ${txResponse.hash}`;
+        transactionStatusParagraph.textContent = 'Статус: Отправлена';
     } catch (error) {
         console.error('Ошибка при отправке транзакции:', error);
-        transactionStatus.textContent = 'Ошибка отправки транзакции';
+        transactionStatusParagraph.textContent = 'Статус: Ошибка';
+        alert(`Ошибка: ${error.message}`);
     }
 }
 
 // Обработчики событий
 connectButton.addEventListener('click', connectMetaMask);
-sendTransactionButton.addEventListener('click', sendTestTransaction);
+disconnectButton.addEventListener('click', disconnectWallet);
+checkBalanceButton.addEventListener('click', checkBalance);
+document.querySelector('form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Предотвращаем стандартное поведение формы
+    sendTransaction();
+});
 
 // Подписываемся на изменения аккаунта и сети
-ethereum.on('accountsChanged', (accounts) => {
-    if (accounts.length > 0) {
-        accountInfo.textContent = `Подключенный аккаунт: ${accounts[0]}`;
-    } else {
-        accountInfo.textContent = 'Аккаунт не подключен';
-        sendTransactionButton.disabled = true;
-    }
-});
+if (window.ethereum) {
+    window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) {
+            disconnectWallet(); // Если аккаунт отключен, вызываем функцию отключения
+        } else {
+            walletAddressInput.value = accounts[0];
+        }
+    });
 
-ethereum.on('chainChanged', (chainId) => {
-    networkInfo.textContent = `Текущая сеть: ${chainId}`;
-});
+    window.ethereum.on('chainChanged', (chainId) => {
+        console.log(`Сеть изменилась: ${chainId}`);
+    });
+}

@@ -11,15 +11,15 @@
     <div class="container">
         <h1>Крипто-кошелек</h1>
         <p>Управление вашими цифровыми активами.</p>
-
-        <button>Подключить MetaMask</button>
-
+        
         <form>
-            <input type="text" placeholder="Адрес кошелька">
-            <input type="number" placeholder="Сумма">
-            <button type="submit">Отправить транзакцию</button>
+            <input type="text" placeholder="Адрес кошелька" id="walletAddressInput" readonly>
+            <button id="connectButton">Подключить MetaMask</button>
+            <button id="disconnectButton" disabled>Отключить кошелек</button>
+            <input type="number" placeholder="Сумма" id="amountInput">
+            <button type="submit" id="sendTransactionButton" disabled>Отправить транзакцию</button>
+            <button id="checkBalanceButton" disabled>Проверить баланс</button>
         </form>
-
         <table>
             <thead>
                 <tr>
@@ -29,16 +29,11 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>Bitcoin</td>
-                    <td>0.5 BTC</td>
-                </tr>
-                <tr>
                     <td>Ethereum</td>
-                    <td>2.3 ETH</td>
+                    <td id="ethereumBalance">*** ETH</td>
                 </tr>
             </tbody>
         </table>
-
         <div class="card">
             <div class="card-header">Информация о транзакции</div>
             <div class="card-content">
@@ -47,6 +42,12 @@
             </div>
         </div>
     </div>
+    <!-- Подключаем ethers.js через CDN -->
+    <!-- <script type="module">
+        import { ethers } from "/unpkg/ethers.min.js";
+    </script> -->
+    <script src="/unpkg/ethers.min.js" crossorigin="anonymous"></script>
+
     <script src="index.js" defer></script>
 </body>
 </html>
