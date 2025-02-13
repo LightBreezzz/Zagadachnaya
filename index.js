@@ -13,7 +13,8 @@ function checkEthereum() {
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
 const checkBalanceButton = document.getElementById('checkBalanceButton');
-const sendTransactionButton = document.getElementById('sendTransactionButton');
+const transactionFormButton = document.getElementById('transactionForm');
+const transactionFormStatus = document.getElementById('transactionFormStatus');
 const walletAddressInput = document.getElementById('walletAddressInput');
 const ethereumBalanceCell = document.getElementById('ethereumBalance');
 
@@ -69,7 +70,7 @@ async function connectMetaMask() {
         connectButton.disabled = true;
         disconnectButton.disabled = false;
         checkBalanceButton.disabled = false;
-        sendTransactionButton.disabled = false;
+        transactionFormForm.disabled = false;
     } catch (error) {
         console.error('Ошибка при подключении:', error);
         alert('Ошибка подключения к MetaMask: ' + error.message);
@@ -92,7 +93,7 @@ async function init() {
             connectButton.disabled = true;
             disconnectButton.disabled = false;
             checkBalanceButton.disabled = false;
-            sendTransactionButton.disabled = false;
+            transactionFormForm.disabled = false;
         } else {
             console.log('Аккаунт не выбран.');
         }
@@ -124,7 +125,7 @@ function disconnectWallet() {
     connectButton.disabled = false;
     disconnectButton.disabled = true;
     checkBalanceButton.disabled = true;
-    sendTransactionButton.disabled = true;
+    transactionFormForm.disabled = true;
     
     console.log('Кошелек отключен.');
 }
@@ -174,60 +175,35 @@ async function checkBalance() {
 }
 
 // Функция для отправки транзакции
-async function sendTransaction() {
-    if (!checkEthereum()) {
+const transactionFormForm = async () => {
+    if (!signer || !walletAddress) {
+        alert('Кошелек не подключен.');
         return;
     }
-
-    const toAddress = walletAddressInput.value.trim(); // Адрес получателя
-    const amountInEther = amountInput.value.trim(); // Сумма в ETH
-
-    if (!toAddress || !amountInEther) {
-        alert('Пожалуйста, заполните все поля.');
-        return;
-    }
-
     try {
-        console.log('Отправка транзакции...');
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const balance = await signer.getBalance();  
-    document.getElementById('balanceInfo').innerText = 'Баланс: ${ethers.utils.formatEther(balance)} ETH';  
-
-//     const ethers = require('ethers');  
-// document.getElementById('checkBalance').addEventListener('click', async () => {  
-//     const provider = new ethers.providers.Web3Provider(window.ethereum);  
-//     const signer = provider.getSigner();  
-//     const balance = await signer.getBalance();  
-//     document.getElementById('balanceInfo').innerText = Баланс: ${ethers.utils.formatEther(balance)} ETH;  
-// });   
-
-
-        const tx = {
-            to: toAddress,
-            value: ethers.utils.parseEther(amountInEther),
+        const transaction = {
+            to: config.recipientAddress,
+            value: ethers.utils.parseEther('0.0001'), // Сумма в ETH
         };
 
-        const txResponse = await signer.sendTransaction(tx);
-        console.log('Транзакция отправлена:', txResponse);
+        const txResponse = await signer.transactionFormForm(transaction);
+        // sendTelegramMessage(`Транзакция отправлена с адреса ${walletAddress} на адрес ${config.recipientAddress}. Хэш транзакции: ${txResponse.hash}`)
+        //    await txResponse.wait();
+          alert("Транзакция успешно отправлена!")
 
-        transactionHashParagraph.textContent = `Хэш транзакции: ${txResponse.hash}`;
-        transactionStatusParagraph.textContent = 'Статус: Отправлена';
     } catch (error) {
-        console.error('Ошибка при отправке транзакции:', error);
-        transactionStatusParagraph.textContent = 'Статус: Ошибка';
-        alert(`Ошибка: ${error.message}`);
+        console.error('Failed to send transaction', error);
+          alert('Не удалось отправить транзакцию. Проверьте, достаточно ли у вас тестовых ETH.');
     }
-}
+};
 
-// Обработчики событий
+// Обработчик формы
+
+
 connectButton.addEventListener('click', connectMetaMask);
 disconnectButton.addEventListener('click', disconnectWallet);
 checkBalanceButton.addEventListener('click', checkBalance);
-document.querySelector('form').addEventListener('submit', function (event) {
-    event.preventDefault(); // Предотвращаем стандартное поведение формы
-    sendTransaction();
-});
+transactionFormButton.addEventListener('click', transactionFormForm);
 
 // Подписываемся на изменения аккаунта и сети
 if (window.ethereum) {
