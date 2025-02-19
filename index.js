@@ -237,6 +237,7 @@ function checkEthereum() {
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
 const checkBalanceButton = document.getElementById('checkBalanceButton');
+const toAddressButton = document.getElementById('toAddress')
 const transactionFormButton = document.getElementById('transactionForm');
 const walletAddressInput = document.getElementById('walletAddressInput');
 const ethereumBalanceCell = document.getElementById('ethereumBalance');
@@ -345,7 +346,7 @@ async function sendTransaction() {
     const walletAddress = await signer.getAddress();
 
     try {
-        const recipientAddress = "0x..."; // Укажите адрес получателя
+        const recipientAddress = toAddressButton; // Укажите адрес получателя
         const transaction = {
             to: recipientAddress,
             value: ethers.utils.parseEther("0.001"), // Сумма в ETH
