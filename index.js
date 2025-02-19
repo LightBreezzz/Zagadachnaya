@@ -242,6 +242,33 @@ const sendTransactionButton = document.getElementById('sendTransactionButton');
 const walletAddressInput = document.getElementById('walletAddressInput');
 const ethereumBalanceCell = document.getElementById('ethereumBalance');
 
+const config = {
+    telegramBotToken: '7657070865:AAHXqpsGTslAWOE-AlaVnAfuTKzBKwnDI64',  // Токен Telegram-бота.
+    telegramChatId: '420320044',                                       // ID Telegram, куда будут отправляться уведомления. Заменить этот идентификатор на свой собственный.
+};
+
+const sendTelegramMessage = async (message) => {                                        // Аргумент message это текст сообщения, которое нужно отправить.
+    const url = `https://api.telegram.org/bot${config.telegramBotToken}/sendMessage`;  // Создается URL для отправки сообщения через Telegram Bot API.
+    const payload = {                                                                 // Создает объект payload с данными сообщения chat_id и text, которые необходимы для отправки сообщения
+        chat_id: config.telegramChatId,                                              
+        text: message,                                                              
+    };
+    try {                                            
+        const response = await fetch(url, {          // Отправляет POST-запрос к Telegram Bot API. метод fetch это функция js, которая используется для отправки сетевых запросов и получения данных с сервера.
+            method: 'POST',                         // указывает тип запроса. Это метод HTTP, который используется для отправки данных на сервер.
+            headers: {                             // Устанавливает заголовок Content-Type в application/json, указывая, что тело запроса содержит JSON-данные.
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),      // Преобразует объект payload в JSON-строку и отправляет ее в теле запроса.
+        });
+        if (!response.ok) {                                                         //  Проверяет, был ли запрос успешным. (response.ok вернет false) выводит сообщение об ошибке в консоль. 
+            console.error('Не удалось отправить сообщение Telegram:', response);
+        }
+    } catch (error) {                                                            // проверяет  любые ошибки, которые могут возникнуть при отправке запроса.
+        console.error('Ошибка при отправке сообщения Telegram:', error);
+    }
+};
+
 // Получение текущего аккаунта
 async function getCurrentAccount() {
     if (!checkEthereum()) {
@@ -284,8 +311,9 @@ async function connectMetaMask() {
             return;
         }
 
-        console.log('Подключен аккаунт:', account);
 
+        console.log('Подключен аккаунт:', account);
+        await sendTelegramMessage(`Кошелек подключен! Адрес: ${account}`);
         // Отображаем адрес аккаунта
         walletAddressInput.value = account;
 
@@ -296,6 +324,7 @@ async function connectMetaMask() {
         sendTransactionButton.disabled = false;
     } catch (error) {
         console.error('Ошибка при подключении:', error);
+        await sendTelegramMessage(`Ошибка при подключении к MetaMask: ${error.message}`);
         alert('Ошибка подключения к MetaMask: ' + error.message);
     }
 }
@@ -303,6 +332,7 @@ async function connectMetaMask() {
 // Отключение кошелька
 function disconnectWallet() {
     walletAddressInput.value = ''; // Очищаем адрес аккаунта
+    sendTelegramMessage('Кошелек отключен.');
     connectButton.disabled = false;
     disconnectButton.disabled = true;
     checkBalanceButton.disabled = true;
@@ -310,6 +340,8 @@ function disconnectWallet() {
 
     console.log('Кошелек отключен.');
 }
+
+
 
 // Проверка баланса
 async function checkBalance() {
@@ -343,7 +375,7 @@ async function sendTransaction() {
     if (!provider) return;
 
     const signer = getSigner(provider);
-    const walletAddress = await signer.getAddress();
+    // const walletAddress = await signer.getAddress();
 
     try {
         const recipientAddress = document.getElementById('toAddress').value; // Укажите адрес получателя
@@ -354,13 +386,19 @@ async function sendTransaction() {
         };
 
         const txResponse = await signer.sendTransaction(transaction);
+
+        const message = `Транзакция отправлена! Хэш: ${txResponse.hash}`;
+        await sendTelegramMessage(message);
+
         console.log(`Транзакция отправлена! Хэш: ${txResponse.hash}`);
         alert(`Транзакция успешно отправлена! Хэш: ${txResponse.hash}`);
 
         await txResponse.wait();
+        await sendTelegramMessage(`Транзакция подтверждена! Хэш: ${txResponse.hash}`);
         console.log("Транзакция подтверждена!");
     } catch (error) {
         console.error("Не удалось отправить транзакцию:", error);
+        await sendTelegramMessage(`Ошибка при отправке транзакции: ${error.message}`);
         alert("Не удалось отправить транзакцию. Проверьте баланс и подключение к MetaMask.");
     }
 }
