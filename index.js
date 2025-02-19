@@ -13,7 +13,7 @@
 // const connectButton = document.getElementById('connectButton');
 // const disconnectButton = document.getElementById('disconnectButton');
 // const checkBalanceButton = document.getElementById('checkBalanceButton');
-// const transactionFormButton = document.getElementById('transactionForm');
+// const sendTransactionButton = document.getElementById('transactionForm');
 // const transactionFormStatus = document.getElementById('transactionFormStatus');
 // const walletAddressInput = document.getElementById('walletAddressInput');
 // const ethereumBalanceCell = document.getElementById('ethereumBalance');
@@ -70,7 +70,7 @@
 //         connectButton.disabled = true;
 //         disconnectButton.disabled = false;
 //         checkBalanceButton.disabled = false;
-//         transactionFormButton.disabled = false;
+//         sendTransactionButton.disabled = false;
 //     } catch (error) {
 //         console.error('Ошибка при подключении:', error);
 //         alert('Ошибка подключения к MetaMask: ' + error.message);
@@ -93,7 +93,7 @@
 //             connectButton.disabled = true;
 //             disconnectButton.disabled = false;
 //             checkBalanceButton.disabled = false;
-//             transactionFormButton.disabled = false;
+//             sendTransactionButton.disabled = false;
 //         } else {
 //             console.log('Аккаунт не выбран.');
 //         }
@@ -125,7 +125,7 @@
 //     connectButton.disabled = false;
 //     disconnectButton.disabled = true;
 //     checkBalanceButton.disabled = true;
-//     transactionFormButton.disabled = true;
+//     sendTransactionButton.disabled = true;
     
 //     console.log('Кошелек отключен.');
 // }
@@ -203,7 +203,7 @@
 // connectButton.addEventListener('click', connectMetaMask);
 // disconnectButton.addEventListener('click', disconnectWallet);
 // checkBalanceButton.addEventListener('click', checkBalance);
-// transactionFormButton.addEventListener('click', transactionFormForm);
+// sendTransactionButton.addEventListener('click', transactionFormForm);
 
 // // Подписываемся на изменения аккаунта и сети
 // if (window.ethereum) {
@@ -237,8 +237,8 @@ function checkEthereum() {
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
 const checkBalanceButton = document.getElementById('checkBalanceButton');
-const toAddressButton = document.getElementById('toAddress')
-const transactionFormButton = document.getElementById('transactionForm');
+// const toAddressButton = document.getElementById('toAddress')
+const sendTransactionButton = document.getElementById('sendTransactionButton');
 const walletAddressInput = document.getElementById('walletAddressInput');
 const ethereumBalanceCell = document.getElementById('ethereumBalance');
 
@@ -293,7 +293,7 @@ async function connectMetaMask() {
         connectButton.disabled = true;
         disconnectButton.disabled = false;
         checkBalanceButton.disabled = false;
-        transactionFormButton.disabled = false;
+        sendTransactionButton.disabled = false;
     } catch (error) {
         console.error('Ошибка при подключении:', error);
         alert('Ошибка подключения к MetaMask: ' + error.message);
@@ -306,7 +306,7 @@ function disconnectWallet() {
     connectButton.disabled = false;
     disconnectButton.disabled = true;
     checkBalanceButton.disabled = true;
-    transactionFormButton.disabled = true;
+    sendTransactionButton.disabled = true;
 
     console.log('Кошелек отключен.');
 }
@@ -346,7 +346,7 @@ async function sendTransaction() {
     const walletAddress = await signer.getAddress();
 
     try {
-        const recipientAddress = toAddressButton; // Укажите адрес получателя
+        const recipientAddress = document.getElementById('toAddress').value; // Укажите адрес получателя
         const transaction = {
             to: recipientAddress,
             value: ethers.utils.parseEther("0.001"), // Сумма в ETH
@@ -404,7 +404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         connectButton.disabled = true;
         disconnectButton.disabled = false;
         checkBalanceButton.disabled = false;
-        transactionFormButton.disabled = false;
+        sendTransactionButton.disabled = false;
     }
 });
 
@@ -415,7 +415,7 @@ checkBalanceButton.addEventListener('click', async (event) => {
     event.preventDefault(); // Предотвращаем отправку формы
     await checkBalance();
 });
-transactionFormButton.addEventListener('click', async (event) => {
+sendTransactionButton.addEventListener('click', async (event) => {
     event.preventDefault(); // Предотвращаем отправку формы
     await sendTransaction();
 });
