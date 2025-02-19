@@ -347,9 +347,10 @@ async function sendTransaction() {
 
     try {
         const recipientAddress = document.getElementById('toAddress').value; // Укажите адрес получателя
+        const amount = document.getElementById('amountInput').value;
         const transaction = {
             to: recipientAddress,
-            value: ethers.utils.parseEther("0.001"), // Сумма в ETH
+            value: ethers.utils.parseEther(amount), // Сумма в ETH
         };
 
         const txResponse = await signer.sendTransaction(transaction);
